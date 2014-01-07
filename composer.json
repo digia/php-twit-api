@@ -1,0 +1,15 @@
+{
+    "name": "digia/php-twit-api",
+    "type": "library",
+    "license": "MIT",
+    "description": "PHP Library for interacting with Twitter API v1.1",
+    "keywords": ["PHP Twit API","Twitter API", "PHP Twitter", "Twitter", "OAuth", "API v1.1"],
+    "homepage": "https://github.com/digia",
+    "require": {
+        "php": ">=5.3",
+        "ext-curl": "*"
+    },
+    "autoload": {
+        "psr-0": { "Digia\\Twitter": "src/" }
+    }
+}
