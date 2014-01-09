@@ -5,10 +5,10 @@ class ApiTests extends PHPUnit_Framework_TestCase {
     public function testSettingMethodAndParams()
     {
         $settings = [
-                'consumer_key' => 'aPRdmcwNTiqEg5WPzk10w',
-                'consumer_secret' => 'As4TcGatCyUt0fmoJlT8RnO0YshI6qr5eVGSbyNrF4',
-                'oauth_token' => '448573630-3KfPPIBxBg4M2dplTaGWeIuovlcQBnjQKT3Ee5Cm',
-                'oauth_token_secret' => 'TEnp3RvPEq5p5SZMyDYrP9WDn8wfn2dlemcKQw0Gp3lNm',
+                'consumer_key' => '',
+                'consumer_secret' => '',
+                'oauth_token' => '',
+                'oauth_token_secret' => '',
             ];
 
         $config = new Digia\Twitter\Config($settings);
