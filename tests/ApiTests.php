@@ -2,7 +2,7 @@
 
 class ApiTests extends PHPUnit_Framework_TestCase {
 
-    public function test()
+    public function testSettingMethodAndParams()
     {
         $settings = [
                 'consumer_key' => 'aPRdmcwNTiqEg5WPzk10w',
@@ -12,15 +12,16 @@ class ApiTests extends PHPUnit_Framework_TestCase {
             ];
 
         $config = new Digia\Twitter\Config($settings);
-        $twitter = new Digia\Twitter\Api($config);
+        $env = new Digia\Twitter\Environment;
+        $twitter = new Digia\Twitter\Api($config, $env);
 
         $response = $twitter->get('statuses/user_timeline')
             ->param('screen_name', 'mooredigia')
             ->param('count', 5)
             ->param('exclude_replies', true);
 
-        $this->assertEquals('https://api.twitter.com/1.1/statuses/user_timeline.json', $response->requestUrl);
-        $this->assertEquals(3, count($response->getParams));
+        $this->assertEquals('https://api.twitter.com/1.1/statuses/user_timeline.json', $response->getRequestUrl());
+        $this->assertEquals(3, count($response->getGetParams()));
     }
 
 }

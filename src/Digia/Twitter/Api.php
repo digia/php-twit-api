@@ -7,49 +7,23 @@ class Api {
     /**
      * Twitter configuration settings
      *
-     * @var Digia\Twitter\Config;
+     * @var Digia\Twitter\Config
      */
     protected $config;
 
-    /**
-     * Twitter's v1.1 API base url
-     *
-     * @var string
-     */
-    protected $apiUrl = 'https://api.twitter.com/1.1/';
 
     /**
-     * HTTP method
+     * Environment settings
      *
-     * @var string
+     * @var Digia\Twitter\Environment
      */
-    protected $method = 'GET';
-
-    /**
-     * Twitter request URL
-     *
-     * @var string
-     */
-    public $requestUrl = null;
-
-    /**
-     * Twitter API GET params
-     *
-     * @var array
-     */
-    public $getParams = [];
-
-    /**
-     * Twitter API POST params
-     *
-     * @var array
-     */
-    public $postParams = [];
+    protected $env;
 
 
-    public function __construct(Config $config)
+    public function __construct(Config $config, Environment $env)
     {
         $this->config = $config;
+        $this->env = $env;
     }
 
     /**
@@ -61,7 +35,7 @@ class Api {
      */
     public function get($api)
     {
-        $this->method = 'GET';
+        $this->env->setMethod('GET');
 
         $this->buildUrl($api);
 
@@ -75,9 +49,9 @@ class Api {
      */
     private function buildUrl($api)
     {
-        $base = $this->apiUrl;
+        $base = $this->env->getApiUrl();
 
-        $this->requestUrl = $base . trim($api, '/') . '.json';
+        $this->env->setRequestUrl($base . trim($api, '/') . '.json');
     }
 
     /**
@@ -93,9 +67,9 @@ class Api {
     {
         $method = strtoupper($method);
 
-        if ($method === 'GET') $this->getParams[$name] = $val;
+        if ($method === 'GET') $this->env->setGetParam($name, $val);
 
-        if ($method === 'POST') $this->postParams[$name] = $val;
+        if ($method === 'POST') $this->env->setPostParam($name, $val);
 
         return $this;
     }
@@ -127,8 +101,8 @@ class Api {
             CURLOPT_SSL_VERIFYPEER => false,
         ];
 
-        if ( ! empty($this->postParams)) {
-            $postParams = $this->postParams;
+        if ( ! empty($this->env->getPostParams())) {
+            $postParams = $this->env->getPostParams();
 
             $options[CURLOPT_POST] = count($postParams);
             $options[CURLOPT_POSTFIELDS] = $this->paramsToString($postParams);
@@ -280,6 +254,11 @@ class Api {
     }
 
 
-    
+    public function __call($method, $args)
+    {
+        if ( ! method_exists($this, $method) ) return call_user_func_array([$this->env, $method], $args);
+
+        return call_user_func_array([$this, $method], $args);
+    }
 
 }
