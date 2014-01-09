@@ -134,5 +134,37 @@ class Environment {
         return $this->postParams;
     }
 
+    /**
+     * Convert param array into a param string
+     *
+     * @param array $params
+     *
+     * @return array
+     */
+    public function paramsToString(array $params)
+    {
+        $paramString = '';
+        ksort($params);
+
+        foreach ($params as $key => $val) {
+            $paramString .= '&' . $key . '=' . rawurlencode($val);
+        }
+
+        return trim($paramString, '&');
+    }
+
+    /** 
+     * Get the request url along with the params in an HTTP ready format
+     *
+     * @return string
+     */
+    public function getUrlWithParams()
+    {
+        $params = $this->paramsToString($this->getParams);
+
+        if ( ! empty($params)) $params = '?' . $params;
+
+        return $this->requestUrl .  $params;
+    }
 
 }

@@ -11,23 +11,30 @@ class Api {
      */
     protected $config;
 
-
     /**
-     * Environment settings
+     * API request environment 
      *
      * @var Digia\Twitter\Environment
      */
     protected $env;
 
+    /**
+     * OAuth Builder
+     *
+     * @var Digia\Twitter\OAuthBuilder
+     */
+    protected $oAuth;
 
-    public function __construct(Config $config, Environment $env)
+
+    public function __construct(Config $config, Environment $env, OAuthBuilder $oAuth)
     {
         $this->config = $config;
         $this->env = $env;
+        $this->oAuth = $oAuth;
     }
 
     /**
-     * Set the HTTP method to get and add the url 
+     * Set the HTTP method to GET and add the url 
      *
      * @param string $api
      * 
@@ -36,6 +43,22 @@ class Api {
     public function get($api)
     {
         $this->env->setMethod('GET');
+
+        $this->buildUrl($api);
+
+        return $this;
+    }
+
+    /**
+     * Set the HTTP method to POST and add the api url
+     *
+     * @param string $api
+     *
+     * @return this
+     */
+    public function post($api)
+    {
+        $this->env->setMethod('POST');
 
         $this->buildUrl($api);
 
@@ -93,10 +116,13 @@ class Api {
 
     public function send()
     {
+        $config = $this->config;
+        $env = $this->env;
+
         $options = [
             CURLOPT_URL => $this->getUrlWithParams(),
             CURLOPT_HEADER => false,
-            CURLOPT_HTTPHEADER => $this->buildRequestHeader(),
+            CURLOPT_HTTPHEADER => $this->oAuth->createHeader($config, $env),
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_SSL_VERIFYPEER => false,
         ];
@@ -105,7 +131,7 @@ class Api {
             $postParams = $this->env->getPostParams();
 
             $options[CURLOPT_POST] = count($postParams);
-            $options[CURLOPT_POSTFIELDS] = $this->paramsToString($postParams);
+            $options[CURLOPT_POSTFIELDS] = $this->env->paramsToString($postParams);
         }
 
         $ch = curl_init();
@@ -118,141 +144,6 @@ class Api {
 
         return $response;
     }
-
-    /**
-     * Build the request header
-     *
-     * @return array
-     */
-    protected function buildRequestHeader()
-    {
-        return [
-            'Authorization: OAuth ' . $this->oAuthParamsToString(),
-            'Expect:'
-        ];
-    }
-
-    /**
-     * Get the OAuth parameters are a string
-     *
-     * @return string
-     */
-    protected function oAuthParamsToString()
-    {
-        $params = array_merge($this->oAuthParams(), ['oauth_signature' => $this->generateOAuthSignature()]);
-        ksort($params);
-
-        $data = [];
-
-        foreach ($params as $key => $val) {
-            $data[] = $key . '="' . rawurlencode($val) . '"';
-        }
-
-        $oAuthString = implode(', ', $data);
-
-        return $oAuthString;
-    }
-
-    /**
-     * Get the OAuth Paramater used in the request header
-     *
-     * @return array
-     */
-    protected function oAuthParams()
-    {
-        return [
-            'oauth_consumer_key' => $this->config->consumerKey,
-            'oauth_nonce' => trim(base64_encode( pow(time(), 3) ), '='),
-            'oauth_signature_method' => 'HMAC-SHA1',
-            'oauth_timestamp' => time(),
-            'oauth_token' => $this->config->oAuthToken,
-            'oauth_version' => '1.0'
-        ];
-    }
-
-    /**
-     * Generate OAuth Signature using HMAC-SHA1 & base64
-     *
-     * @return string
-     */
-    protected function generateOAuthSignature()
-    {
-        $hash = hash_hmac('sha1', $this->generateSignatureBaseString(), $this->generateSignatureBaseStringKey(), true);
-
-        return base64_encode($hash);
-    }
-
-    /**
-     * Generate a request signature string
-     *
-     * @return string
-     */
-    protected function generateSignatureBaseString()
-    {
-        $method = strtoupper($this->method);
-
-        $url = rawurlencode($this->requestUrl);
-
-        return $method . '&' . $url . '&' . $this->generateParamString();
-    }
-
-    /**
-     * Generate a url encoded request string containing the parameters.
-     *
-     * @return string
-     */
-    protected function generateParamString()
-    {
-        $params = array_merge($this->getParams, $this->postParams, $this->oAuthParams());
-
-        $params = $this->paramsToString($params);
-
-        return rawurlencode($params);
-    }
-
-    /**
-     * Convert param array into a param string
-     *
-     * @param array $params
-     *
-     * @return array
-     */
-    protected function paramsToString(array $params)
-    {
-        $paramString = '';
-        ksort($params);
-
-        foreach ($params as $key => $val) {
-            $paramString .= '&' . $key . '=' . rawurlencode($val);
-        }
-
-        return trim($paramString, '&');
-    }
-
-    /**
-     * Generate OAuth signing key
-     *
-     * @return string
-     */
-    protected function generateSignatureBaseStringKey()
-    {
-        return $this->config->consumerSecret . '&' . $this->config->oAuthTokenSecret;
-    }
-
-    /** 
-     * Get the request url along with the params in an HTTP ready format
-     *
-     * @return string
-     */
-    protected function getUrlWithParams()
-    {
-        $params = $this->paramsToString($this->getParams);
-
-        if ( ! empty($params)) $params = '?' . $params;
-
-        return $this->requestUrl .  $params;
-    }
-
 
     public function __call($method, $args)
     {

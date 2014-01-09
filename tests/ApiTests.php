@@ -13,7 +13,8 @@ class ApiTests extends PHPUnit_Framework_TestCase {
 
         $config = new Digia\Twitter\Config($settings);
         $env = new Digia\Twitter\Environment;
-        $twitter = new Digia\Twitter\Api($config, $env);
+        $oAuth = new Digia\Twitter\oAuthBuilder;
+        $twitter = new Digia\Twitter\Api($config, $env, $oAuth);
 
         $response = $twitter->get('statuses/user_timeline')
             ->param('screen_name', 'mooredigia')
