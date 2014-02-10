@@ -10,7 +10,6 @@ TODO:
 #### Features
 - Composer
 - Namespace
-- PSR-4
 - Chaining
 
 ### Quick Example 
