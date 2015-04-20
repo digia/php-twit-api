@@ -15,6 +15,13 @@ TODO:
 ### Quick Example 
 ```php 
 <?php 
+    $twitter = (new ApiFactory(array(
+        'consumer_key' => '...',
+        'consumer_secret' => '...',
+        'oauth_token' => '...',
+        'oauth_token_secret' => '...',
+        )))->make();
+
     /**
      * Example: GET request with param chaining
      */
