@@ -2,8 +2,8 @@
 
 namespace Digia\Twitter;
 
-class Api {
-
+class Api 
+{
     /**
      * Twitter configuration settings
      *

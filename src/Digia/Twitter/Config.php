@@ -4,12 +4,12 @@ namespace Digia\Twitter;
 
 use Digia\Twitter\Exception\NonExistantSetting;
 
-class Config {
-    
-    protected $consumerKey = null;
-    protected $consumerSecret = null;
-    protected $oAuthToken = null;
-    protected $oAuthTokenSecret = null;
+class Config 
+{
+    protected $consumerKey;
+    protected $consumerSecret;
+    protected $oAuthToken;
+    protected $oAuthTokenSecret;
 
     public function __construct(array $settings)
     {

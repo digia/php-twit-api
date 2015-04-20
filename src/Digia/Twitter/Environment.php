@@ -2,8 +2,8 @@
 
 namespace Digia\Twitter;
 
-class Environment {
-
+class Environment 
+{
     /**
      * Twitter's v1.1 API base url
      *

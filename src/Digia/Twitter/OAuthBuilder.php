@@ -2,8 +2,8 @@
 
 namespace Digia\Twitter;
 
-class OAuthBuilder {
-    
+class OAuthBuilder 
+{
     /**
      * Twitter API configuration settings
      *
